@@ -1,0 +1,54 @@
+# Konfigurasi deploy otomatis untuk Render
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: solid-portal-surakarta
+    runtime: docker
+    plan: starter          # ganti ke "standard" jika butuh disk persistent
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /up
+    autoDeploy: true
+
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        value: https://solid-portal-surakarta.onrender.com
+      - key: APP_LOCALE
+        value: id
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: /var/www/html/database/database.sqlite
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: CACHE_STORE
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SEED_ON_EMPTY
+        value: "true"
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      # Setelah disk dibuat, set nilai ini:
+      # - key: PERSISTENT_MOUNT
+      #   value: /var/www/html/persistent
+      # - key: DB_DATABASE
+      #   value: /var/www/html/persistent/database/database.sqlite
+
+# ---------------------------------------------------------------------------
+# Disk persistent untuk database SQLite + file upload berkas warga.
+# Catatan: hanya tersedia di plan berbayar (Standard ke atas).
+# blueprint spec: https://render.com/docs/blueprint-spec#disk-object
+# ---------------------------------------------------------------------------
+    # disk:
+    #   name: solid-data
+    #   mountPath: /var/www/html/persistent
+    #   sizeGB: 5
