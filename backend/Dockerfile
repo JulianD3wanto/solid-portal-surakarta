@@ -29,9 +29,10 @@ RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts --no-a
 
 COPY . .
 
-RUN composer dump-autoload --optimize --no-dev \
-    && npm ci --ignore-scripts \
-    && npm run build
+RUN npm ci \
+    && npm run build \
+    && composer dump-autoload --optimize --no-dev \
+    && php artisan package:discover --ansi --no-interaction || true
 
 # ---------------------------------------------------------------------------
 # Stage produksi

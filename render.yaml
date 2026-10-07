@@ -6,7 +6,7 @@ services:
     runtime: docker
     plan: starter          # ganti ke "standard" jika butuh disk persistent
     dockerfilePath: ./backend/Dockerfile
-    dockerContext: .
+    dockerContext: ./backend
     healthCheckPath: /up
     autoDeploy: true
 

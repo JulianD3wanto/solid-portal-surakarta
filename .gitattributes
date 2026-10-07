@@ -1,0 +1,16 @@
+# Paksa LF untuk file yang dijalankan di Linux (Docker build)
+*.sh text eol=lf
+docker/** text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# File binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.jfif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary

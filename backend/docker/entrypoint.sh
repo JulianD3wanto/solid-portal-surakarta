@@ -11,25 +11,25 @@ cd /var/www/html
 if [ -n "${PERSISTENT_MOUNT:-}" ] && [ -d "$PERSISTENT_MOUNT" ]; then
     echo "[entrypoint] Menggunakan disk persistent: $PERSISTENT_MOUNT"
     mkdir -p "$PERSISTENT_MOUNT/database" "$PERSISTENT_MOUNT/storage/app/public" \
-             "$PERSISTENT_MOUNT/storage/app/private" "$PERSISTENT_MOUNT/storage/framework" \
-             "$PERSISTENT_MOUNT/storage/logs" "$PERSISTENT_MOUNT/bootstrap/cache"
+             "$PERSISTENT_MOUNT/storage/app/private" "$PERSISTENT_MOUNT/storage/app/dmls"
 
-    # Pindahkan (sekali saja) isi awal bila belum ada
-    [ -f "$PERSISTENT_MOUNT/database/database.sqlite" ] || touch "$PERSISTENT_MOUNT/database/database.sqlite"
-    [ -d "$PERSISTENT_MOUNT/storage/app/public" ] || true
+    # Salin database lama ke disk persistent (transisi pertama saja).
+    if [ ! -s "$PERSISTENT_MOUNT/database/database.sqlite" ] && [ -f /var/www/html/database/database.sqlite ]; then
+        cp /var/www/html/database/database.sqlite "$PERSISTENT_MOUNT/database/database.sqlite"
+    fi
 
-    # Ganti folder lokal dengan symlink -> persistent
-    for target in storage/app storage/framework storage/logs database/database.sqlite; do
+    # Salin file upload lama bila storage persistent masih kosong.
+    if [ -z "$(ls -A "$PERSISTENT_MOUNT/storage/app" 2>/dev/null)" ]; then
+        cp -rn /var/www/html/storage/app/. "$PERSISTENT_MOUNT/storage/app/" 2>/dev/null || true
+    fi
+
+    # Hanya database + folder upload yang di-symlink agar bertahan antar-deployment.
+    # storage/framework (cache/session/view) & storage/logs tetap di kontainer
+    # karena memang dibangun ulang tiap boot.
+    for target in storage/app database/database.sqlite; do
         dest="$PERSISTENT_MOUNT/$target"
         src="/var/www/html/$target"
-        if [ -e "$src" ] && [ ! -L "$src" ]; then
-            if [ -f "$src" ]; then
-                [ -s "$dest" ] || cp "$src" "$dest"
-            else
-                cp -rn "$src/." "$dest/" 2>/dev/null || true
-            fi
-            rm -rf "$src"
-        fi
+        if [ -e "$src" ] && [ ! -L "$src" ]; then rm -rf "$src"; fi
         if [ ! -e "$src" ]; then
             mkdir -p "$(dirname "$src")"
             ln -s "$dest" "$src"
