@@ -1,0 +1,20 @@
+@extends('layouts.app')
+@section('content')
+<main class="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
+<div class="grid w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl lg:grid-cols-2">
+<div class="hero-gradient hidden p-10 text-white lg:flex lg:flex-col lg:justify-between"><div><img src="{{ asset('logo-solid-transparent.png') }}" alt="SOLID" class="h-20 w-auto brightness-0 invert"><p class="mt-10 text-sm font-bold uppercase tracking-widest text-emerald-200">Pendaftaran warga</p><h1 class="mt-4 text-4xl font-black leading-tight">Buat akun dan akses layanan digital Surakarta.</h1><p class="mt-5 leading-7 text-blue-100">Pilih wilayah tempat tinggal Anda agar permohonan otomatis diteruskan ke kelurahan yang tepat.</p></div><p class="text-sm text-blue-200">SOLID · Layanan persuratan digital Surakarta</p></div>
+<div class="p-8 sm:p-12"><p class="font-bold uppercase tracking-widest text-solo-green">Pendaftaran warga</p><h1 class="mt-3 text-3xl font-black text-solo-blue">Buat akun Portal Surakarta</h1><p class="mt-3 text-slate-500">Satu akun untuk mengajukan layanan administrasi secara digital.</p>
+@if($errors->any())<div class="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700"><ul class="grid gap-1">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+<form class="mt-7 grid gap-5" action="{{ route('register.store') }}" method="POST">@csrf
+<label class="grid gap-2 text-sm font-bold text-slate-700">Nama lengkap<input name="name" value="{{ old('name') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3" required autofocus></label>
+<label class="grid gap-2 text-sm font-bold text-slate-700">NIK<input name="nik" value="{{ old('nik') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3" inputmode="numeric" maxlength="16" minlength="16" required></label>
+<label class="grid gap-2 text-sm font-bold text-slate-700">Email<input name="email" value="{{ old('email') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3" type="email" required></label>
+<label class="grid gap-2 text-sm font-bold text-slate-700">Kecamatan<select id="register-kecamatan" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3" required><option value="">Pilih kecamatan</option>@foreach($kecamatans as $kecamatan)<option value="{{ $kecamatan->id }}">{{ $kecamatan->name }}</option>@endforeach</select></label>
+<label class="grid gap-2 text-sm font-bold text-slate-700">Kelurahan<select name="kelurahan_id" id="register-kelurahan" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3" required><option value="">Pilih kelurahan</option>@foreach($kecamatans as $kecamatan)@foreach($kecamatan->kelurahans as $kelurahan)<option data-kecamatan="{{ $kecamatan->id }}" value="{{ $kelurahan->id }}">{{ $kelurahan->name }}</option>@endforeach @endforeach</select></label>
+<label class="grid gap-2 text-sm font-bold text-slate-700">Kata sandi<input name="password" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3" type="password" minlength="8" required></label>
+<label class="grid gap-2 text-sm font-bold text-slate-700">Konfirmasi kata sandi<input name="password_confirmation" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3" type="password" minlength="8" required></label>
+<button type="submit" class="rounded-xl bg-solo-blue px-5 py-3 font-black text-white transition hover:bg-solo-deep active:scale-95">Buat akun</button></form><p class="mt-6 text-center text-sm text-slate-500">Sudah punya akun? <a class="font-black text-solo-blue" href="{{ url('/masuk') }}">Masuk</a></p></div></div></main>
+@endsection
+@push('scripts')
+<script>const kec=document.querySelector('#register-kecamatan'),kel=document.querySelector('#register-kelurahan');const filter=()=>{if(!kec||!kel)return;[...kel.options].forEach(option=>{if(option.value)option.hidden=kec.value!==''&&option.dataset.kecamatan!==kec.value;});};kec?.addEventListener('change',filter);filter();</script>
+@endpush

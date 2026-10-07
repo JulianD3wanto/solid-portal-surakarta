@@ -1,0 +1,15 @@
+# Environment & database lokal (jangan ikut dipush)
+backend/.env
+backend/database/database.sqlite
+
+# Dependensi & artefak build
+backend/vendor/
+backend/node_modules/
+backend/public/build/
+
+# File sistem / editor
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
